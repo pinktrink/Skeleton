@@ -201,8 +201,38 @@
 					
 					datetime_local : function(){
 						
-					}
-				}
+					},
+					
+					text : function(element){
+                        if(element.getAttribute("placeholder") !== null){
+                            Skeleton.html5.form.placeholder(element);
+                        }
+                    }
+                },
+                
+                placeholder : function(element){
+                    if(element.value === ""){
+                        element.value = element.getAttribute("placeholder");
+                    }
+                    element.Skeleton.hasChanged = false;
+                    
+                    Skeleton.addListener(element, "focus", function(){
+                        if(!this.Skeleton.hasChanged){
+                            this.value = "";
+                        }
+                    });
+                    
+                    Skeleton.addListener(element, "blur", function(){
+                        if(this.value === ""){
+                            this.value = element.getAttribute("placeholder");
+                            this.Skeleton.hasChanged = false;
+                        }
+                    });
+                    
+                    Skeleton.addListener(element, "keyup", function(){
+                        this.Skeleton.hasChanged = true;
+                    });
+                }
 			},
 			
 			loader : function(){
@@ -210,8 +240,9 @@
 					inputs = Skeleton.html5.form.inputElements = document.getElementsByTagName("input");
 				
 				for(var i = 0, j = inputs.length; i < j; i++){
-					if((type = inputs[i].getAttribute("type")) && Skeleton.html5.form.create[type.replace("-", "_")]){
-						Skeleton.html5.form.create[type.replace("-", "_")](inputs[i]);
+					inputs[i].Skeleton = {};
+					if((type = inputs[i].getAttribute("type").replace(/-/g, "_")) && Skeleton.html5.form.create[type]){
+						Skeleton.html5.form.create[type](inputs[i]);
 					}
 				}
 			}
@@ -222,3 +253,4 @@
 })();
 
 Skeleton.addListener(window, "load", Skeleton.doFancyExpensiveTabThings);
+Skeleton.addListener(window, "load", Skeleton.html5.loader);
