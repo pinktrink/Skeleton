@@ -1,0 +1,11 @@
+.skel-placeholder{
+	color: #aaa;
+}
+
+.skel-placeholder-hidden{
+	display: none;
+}
+
+.skel-placeholder-shown{
+	display: inherit;
+}

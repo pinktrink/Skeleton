@@ -204,35 +204,87 @@
 					},
 					
 					text : function(element){
-                        if(element.getAttribute("placeholder") !== null){
-                            Skeleton.html5.form.placeholder(element);
-                        }
-                    }
-                },
-                
-                placeholder : function(element){
-                    if(element.value === ""){
-                        element.value = element.getAttribute("placeholder");
-                    }
-                    element.Skeleton.hasChanged = false;
-                    
-                    Skeleton.addListener(element, "focus", function(){
-                        if(!this.Skeleton.hasChanged){
-                            this.value = "";
-                        }
-                    });
-                    
-                    Skeleton.addListener(element, "blur", function(){
-                        if(this.value === ""){
-                            this.value = element.getAttribute("placeholder");
-                            this.Skeleton.hasChanged = false;
-                        }
-                    });
-                    
-                    Skeleton.addListener(element, "keyup", function(){
-                        this.Skeleton.hasChanged = true;
-                    });
-                }
+						if(element.getAttribute("placeholder") !== null){
+							Skeleton.html5.form.textPlaceholder(element);
+						}
+					},
+					
+					password : function(element){
+						if(element.getAttribute("placeholder") !== null){
+							Skeleton.html5.form.passPlaceholder(element);
+						}
+					}
+				},
+				
+				textPlaceholder : function(element){
+					if(element.value === ""){
+						element.value = element.getAttribute("placeholder");
+						Skeleton.addClass(element, "skel-placeholder");
+					}
+					element.Skeleton.hasChanged = false;
+					
+					Skeleton.addListener(element, "focus", function(){
+						if(!this.Skeleton.hasChanged){
+							this.value = "";
+							Skeleton.removeClass(this, "skel-placeholder");
+						}
+					});
+					
+					Skeleton.addListener(element, "blur", function(){
+						if(this.value === ""){
+							this.value = this.getAttribute("placeholder");
+							Skeleton.addClass(this, "skel-placeholder");
+							this.Skeleton.hasChanged = false;
+						}
+					});
+					
+					Skeleton.addListener(element, "keyup", function(){
+						this.Skeleton.hasChanged = true;
+					});
+				},
+				
+				passPlaceholder : function(element){
+					var tempElement = document.createElement("input"),
+						passElement = element;
+					
+					Skeleton.addClass(tempElement, "skel-placeholder");
+					tempElement.value = passElement.getAttribute("placeholder");
+					Skeleton.addClass(tempElement, "skel-placeholder-hidden");
+					Skeleton.addClass(passElement, "skel-placeholder-shown");
+					passElement.parentNode.insertBefore(tempElement, (passElement.nextSibling || passElement));
+					
+					if(element.value === ""){
+						Skeleton.addClass(tempElement, "skel-placeholder-shown");
+						Skeleton.removeClass(tempElement, "skel-placeholder-hidden");
+						Skeleton.addClass(passElement, "skel-placeholder-hidden");
+						Skeleton.removeClass(passElement, "skel-placeholder-shown");
+					}
+					passElement.Skeleton.hasChanged = false;
+					
+					Skeleton.addListener(tempElement, "focus", function(){
+						if(!passElement.Skeleton.hasChanged){
+							Skeleton.addClass(passElement, "skel-placeholder-shown");
+							Skeleton.removeClass(passElement, "skel-placeholder-hidden");
+							Skeleton.addClass(this, "skel-placeholder-hidden");
+							Skeleton.removeClass(this, "skel-placeholder-shown");
+							passElement.focus();
+						}
+					});
+					
+					Skeleton.addListener(passElement, "blur", function(){
+						if(this.value === ""){
+							Skeleton.addClass(tempElement, "skel-placeholder-shown");
+							Skeleton.removeClass(tempElement, "skel-placeholder-hidden");
+							Skeleton.addClass(this, "skel-placeholder-hidden");
+							Skeleton.removeClass(this, "skel-placeholder-shown");
+							this.Skeleton.hasChanged = false;
+						}
+					});
+					
+					Skeleton.addListener(passElement, "keyup", function(){
+						this.Skeleton.hasChanged = true;
+					});
+				}
 			},
 			
 			loader : function(){
@@ -241,7 +293,7 @@
 				
 				for(var i = 0, j = inputs.length; i < j; i++){
 					inputs[i].Skeleton = {};
-					if((type = inputs[i].getAttribute("type").replace(/-/g, "_")) && Skeleton.html5.form.create[type]){
+					if((type = (inputs[i].getAttribute("type") || "").replace(/-/g, "_")) && Skeleton.html5.form.create[type]){
 						Skeleton.html5.form.create[type](inputs[i]);
 					}
 				}
