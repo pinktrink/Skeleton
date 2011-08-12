@@ -150,20 +150,69 @@
 		
 		
 		html5 : {
-			managedElements : [],
-			inputElements : [],
-			
-			create : {
-				color : function(){
+			form : {
+				managedElements : [],
+				inputElements : [],
+				
+				create : {
+					color : function(){
+						
+					},
 					
+					email : function(){
+						
+					},
+					
+					url : function(){
+						
+					},
+					
+					number : function(){
+						
+					},
+					
+					range : function(){
+						
+					},
+					
+					date : function(){
+						
+					},
+					
+					month : function(){
+						
+					},
+					
+					week : function(){
+						
+					},
+					
+					time : function(){
+						
+					},
+					
+					datetime : function(){
+						
+					},
+					
+					search : function(){
+						
+					},
+					
+					datetime_local : function(){
+						
+					}
 				}
 			},
 			
 			loader : function(){
-				Skeleton.html5.inputElements = document.getElementsByTagName("input");
+				var type,
+					inputs = Skeleton.html5.form.inputElements = document.getElementsByTagName("input");
 				
-				for(var i = 0, j = Skeleton.html5.inputElements.length; i < j; i++){
-					
+				for(var i = 0, j = inputs.length; i < j; i++){
+					if((type = inputs[i].getAttribute("type")) && Skeleton.html5.form.create[type.replace("-", "_")]){
+						Skeleton.html5.form.create[type.replace("-", "_")](inputs[i]);
+					}
 				}
 			}
 		}
