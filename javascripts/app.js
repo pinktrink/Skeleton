@@ -251,7 +251,7 @@
 					},
 					
 					password : function(element){
-						if(element.getAttribute("placeholder") !== null){
+						if(element.getAttribute("placeholder") !== null && !element.placeholder){
 							Skeleton.html5.form.passPlaceholder(element);
 						}
 					}
