@@ -34,18 +34,26 @@
 			return ret;
 		},
 		
-		filterTags : function(list, tags){
-			var exists = false;
-			
-			for(var i = 0, j = list.length; i < j; i++){
-				for(var k = 0, l = tags.length; k < l; k++){
-					if(list[i].tagName === tags[k]){
-						exists = true;
-						break;
+		filterTag : function(list, tag){
+			if(tag.push){
+				var exists = false;
+				for(var i = 0, j = tag.length; i < j; i++){
+					for(var k = 0, l = list.length; k < l; k++){
+						if(list[k].tagName === tag[i]){
+							exists = true;
+							break;
+						}
+					}
+					if(exists === true){
+						list.splice(k, 1);
 					}
 				}
-				if(exists === true){
-					list.splice(i, 1);
+			}else{
+				for(var k = 0, l = list.length; k < l; k++){
+					if(list[k].tagName === tag){
+						list.splice(k, 1);
+						break;
+					}
 				}
 			}
 			
@@ -56,32 +64,66 @@
 			var classes = (element.getAttribute("className") || element.className).split(" "),
 				exists = false;
 			
-			for(i = 0, j = classes.length; i < j; i++){
-				if(classes[i] === name){
-					exists = true;
-					break;
+			if(name.push){
+				for(var i = 0, j = name.length; i < j; i++){
+					for(var k = 0, l = classes.length; k < l; k++){
+						if(classes[k] === name[i]){
+							exists = true;
+							break;
+						}
+					}
+					if(!exists){
+						classes.push(name[i]);
+						element.className = classes.join(" ");
+					}
 				}
-			}
-			if(!exists){
-				classes.push(name);
-				element.className = classes.join(" ");
+			}else{
+				for(var k = 0, l = classes.length; k < l; k++){
+					if(classes[k] === name){
+						exists = true;
+						break;
+					}
+				}
+				if(!exists){
+					classes.push(name);
+					element.className = classes.join(" ");
+				}
 			}
 		},
 		
 		removeClass : function(element, name){
 			var classes = (element.getAttribute("className") || element.className).split(" "),
 				exists = false;
-			
-			for(var i = 0, j = classes.length; i < j; i++){
-				if(classes[i] === name){
-					exists = true;
-					break;
+			if(name.push){
+				for(var i = 0, j = name.length; i < j; i++){
+					for(var k = 0, l = classes.length; k < l; k++){
+						if(classes[k] === name[i]){
+							exists = true;
+							break;
+						}
+					}
+					if(exists){
+						classes.splice(k, 1);
+						element.className = classes.join(" ");
+					}
+				}
+			}else{
+				for(var k = 0, l = classes.length; k < l; k++){
+					if(classes[k] === name){
+						exists = true;
+						break;
+					}
+				}
+				if(exists){
+					classes.splice(k, 1);
+					element.className = classes.join(" ");
 				}
 			}
-			if(exists){
-				classes.splice(i, 1);
-				element.className = classes.join(" ");
-			}
+		},
+		
+		swapClass : function(element, from, to){
+			Skeleton.removeClass(element, from);
+			Skeleton.addClass(element, to);
 		},
 		
 		addListener : function(element, on, fn, last){
@@ -102,7 +144,7 @@
 		},
 		
 		doFancyExpensiveTabThings : function(){
-			var tabs = Skeleton.filterTags(Skeleton.getElementsByClassName(document, "tabs"), ["ul"]);
+			var tabs = Skeleton.filterTag(Skeleton.getElementsByClassName(document, "tabs"), "ul");
 			
 			for(var i = 0, j = tabs.length; i < j; i++){
 				(function(){
@@ -129,7 +171,6 @@
 								
 								Skeleton.addClass(this, "active");
 								
-								//contentElement = document.getElementById(contentLocation.substr(1));
 								contentElement = Skeleton.getElementsByClassName(Skeleton.getElementsByClassName(tabs[tabNum].parentNode, "tabs-content")[0], contentLocation.substr(1))[0];
 								Skeleton.addClass(contentElement, "active");
 								
@@ -247,36 +288,30 @@
 					var tempElement = document.createElement("input"),
 						passElement = element;
 					
-					Skeleton.addClass(tempElement, "skel-placeholder");
 					tempElement.value = passElement.getAttribute("placeholder");
-					Skeleton.addClass(tempElement, "skel-placeholder-hidden");
+					tempElement.setAttribute("type", "text");
+					Skeleton.addClass(tempElement, ["skel-placeholder", "skel-placeholder-hidden"]);
 					Skeleton.addClass(passElement, "skel-placeholder-shown");
 					passElement.parentNode.insertBefore(tempElement, (passElement.nextSibling || passElement));
 					
 					if(element.value === ""){
-						Skeleton.addClass(tempElement, "skel-placeholder-shown");
-						Skeleton.removeClass(tempElement, "skel-placeholder-hidden");
-						Skeleton.addClass(passElement, "skel-placeholder-hidden");
-						Skeleton.removeClass(passElement, "skel-placeholder-shown");
+						Skeleton.swapClass(tempElement, "skel-placeholder-hidden", "skel-placeholder-shown");
+						Skeleton.swapClass(passElement, "skel-placeholder-shown", "skel-placeholder-hidden");
 					}
 					passElement.Skeleton.hasChanged = false;
 					
 					Skeleton.addListener(tempElement, "focus", function(){
 						if(!passElement.Skeleton.hasChanged){
-							Skeleton.addClass(passElement, "skel-placeholder-shown");
-							Skeleton.removeClass(passElement, "skel-placeholder-hidden");
-							Skeleton.addClass(this, "skel-placeholder-hidden");
-							Skeleton.removeClass(this, "skel-placeholder-shown");
+							Skeleton.swapClass(passElement, "skel-placeholder-hidden", "skel-placeholder-shown");
+							Skeleton.swapClass(this, "skel-placeholder-shown", "skel-placeholder-hidden");
 							passElement.focus();
 						}
 					});
 					
 					Skeleton.addListener(passElement, "blur", function(){
 						if(this.value === ""){
-							Skeleton.addClass(tempElement, "skel-placeholder-shown");
-							Skeleton.removeClass(tempElement, "skel-placeholder-hidden");
-							Skeleton.addClass(this, "skel-placeholder-hidden");
-							Skeleton.removeClass(this, "skel-placeholder-shown");
+							Skeleton.swapClass(tempElement, "skel-placeholder-hidden", "skel-placeholder-shown");
+							Skeleton.swapClass(this, "skel-placeholder-shown", "skel-placeholder-hidden");
 							this.Skeleton.hasChanged = false;
 						}
 					});
