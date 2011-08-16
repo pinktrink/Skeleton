@@ -7,5 +7,6 @@
 }
 
 .skel-placeholder-shown{
-	display: inherit !important;
+	/* I have no idea what to do about this.*/
+	display: inline-block;
 }
